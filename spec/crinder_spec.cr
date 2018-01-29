@@ -15,7 +15,7 @@ class TodoRenderer < Crinder::Base(Todo)
 end
 
 class AnotherTodoRenderer < TodoRenderer
-  field expires_at : String, unless: -> { object.priority < 1 }
+  field expires_at : String, unless: ->{ object.priority < 1 }
   field created_at : String, if: ->{ object.priority > 8 }
   field updated_at : String
   remove updated
