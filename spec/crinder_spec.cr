@@ -14,11 +14,42 @@ class TodoRenderer < Crinder::Base(Todo)
   end
 end
 
-describe Crinder::Base do
-  it "converts object to json" do
-    time = Time.new(2018, 1, 29, 15, 23, 15)
-    t = Todo.new("www", 8, time + 20.hours, time, nil)
+class AnotherTodoRenderer < TodoRenderer
+  field expires_at : String, unless: -> { object.priority < 1 }
+  field created_at : String, if: ->{ object.priority > 8 }
+  field updated_at : String
+  remove updated
+end
 
-    TodoRenderer.render(t).should eq(%({"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false}))
+class YetAnotherTodoRenderer < AnotherTodoRenderer
+  remove updated_at
+end
+
+describe Crinder::Base do
+  describe ".render" do
+    it "converts object to json" do
+      time = Time.new(2018, 1, 29, 15, 23, 15)
+      t = Todo.new("www", 8, time + 20.hours, time, nil)
+
+      TodoRenderer.render(t).should eq(%({"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false}))
+    end
+
+    context "with inheritance" do
+      it "converts object to json" do
+        time = Time.new(2018, 1, 29, 17, 21, 34)
+        t = Todo.new("QAQ", 3, time + 20.hours, time, time + 10.hours)
+
+        AnotherTodoRenderer.render(t).should eq(%({"title":"QAQ","priority":30,"expires_at":"2018-01-30 13:21:34","updated_at":"2018-01-30 03:21:34"}))
+      end
+    end
+
+    context "with multilevel inheritance" do
+      it "converts object to json" do
+        time = Time.new(2018, 1, 29, 18, 42, 37)
+        t = Todo.new("Wow", 9, time + 20.hours, time, time + 10.hours)
+
+        YetAnotherTodoRenderer.render(t).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37","created_at":"2018-01-29 18:42:37"}))
+      end
+    end
   end
 end
