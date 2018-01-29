@@ -91,14 +91,14 @@ class Crinder::Base(T)
 
     %show = {% if show_unless.is_a? ProcLiteral %}
               !{{show_unless}}.call
-    {% else %}
-      !{{show_unless}}
-    {% end %}
+            {% else %}
+              !{{show_unless}}
+            {% end %}
     %show &&= {% if show_if.is_a? ProcLiteral %}
                 {{show_if}}.call
-    {% else %}
-      {{show_if}}
-    {% end %}
+              {% else %}
+                {{show_if}}
+              {% end %}
 
     if %show
       {{yield}}
