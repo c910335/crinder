@@ -1,0 +1,9 @@
+name: crinder
+version: 0.1.0
+
+authors:
+  - Tatsiujin Chin <c910335@gmail.com>
+
+crystal: 0.24.1
+
+license: MIT
