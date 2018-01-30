@@ -4,10 +4,10 @@ record Todo, name : String, priority : Int32, expires_at : Time?, created_at : T
 
 class TodoRenderer < Crinder::Base(Todo)
   field name : String, as: title
-  field priority : Int, filter: ->{ object.priority * 10 }
+  field priority : Int, value: ->{ object.priority * 10 }
   field expires_at : String, as: deadline, unless: ->{ object.priority < 3 }
   field created_at : String, if: ->{ object.priority > 5 }
-  field updated : Bool, filter: updated?
+  field updated : Bool, value: updated?
 
   def self.updated?
     !object.updated_at.nil?

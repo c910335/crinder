@@ -58,14 +58,14 @@ class Crinder::Base(T)
       type = decl.type
       SETTINGS[@type.id][name] = options || {} of Nil => Nil
       SETTINGS[@type.id][name][:type] = type
-      filter = options[:filter]
+      value = options[:value]
     %}
 
     def self.{{name}}
-      {% if filter.is_a? ProcLiteral %}
-        {{filter}}.call
-      {% elsif !filter.is_a? NilLiteral %}
-        {{filter}}
+      {% if value.is_a? ProcLiteral %}
+        {{value}}.call
+      {% elsif !value.is_a? NilLiteral %}
+        {{value}}
       {% else %}
         __cast({{name}})
       {% end %}
