@@ -34,6 +34,14 @@ describe Crinder::Base do
       TodoRenderer.render(t).should eq(%({"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false}))
     end
 
+    it "converts multiple objects to json" do
+      time = Time.new(2018, 1, 29, 15, 23, 15)
+      t = Todo.new("www", 8, time + 20.hours, time, nil)
+      t2 = Todo.new("api", 10, time + 21.hours, time, nil)
+
+      TodoRenderer.render([t, t2]).should eq(%([{"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false},{"title":"api","priority":100,"deadline":"2018-01-30 12:23:15","created_at":"2018-01-29 15:23:15","updated":false}]))
+    end
+
     context "with inheritance" do
       it "converts object to json" do
         time = Time.new(2018, 1, 29, 17, 21, 34)
