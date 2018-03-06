@@ -106,15 +106,17 @@ class Crinder::Base(T)
   end
 
   macro __process
-    def self.render(object : Array(T) | T) : String
+    def self.render(object : Array(T)) : String
       JSON.build do |json|
-        if object.is_a? Array(T)
-          json.array do
-            object.each { |o| render_object(json, o) }
-          end
-        else
-          render_object(json, object)
+        json.array do
+          object.each { |o| render_object(json, o) }
         end
+      end
+    end
+
+    def self.render(object : T) : String
+      JSON.build do |json|
+        render_object(json, object)
       end
     end
 
