@@ -14,6 +14,8 @@ dependencies:
 
 ## Usage
 
+### Basic
+
 ```crystal
 require "crinder"
 
@@ -35,7 +37,11 @@ time = Time.new(2018, 1, 29, 15, 23, 15)
 todo = Todo.new("www", 8, time + 20.hours, time, nil)
 
 TodoRenderer.render(todo) # => "{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-01-30 11:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false}"
+```
 
+### Inheritance
+
+```crystal
 class AnotherTodoRenderer < TodoRenderer
   remove updated
   remove expires_at
@@ -45,6 +51,13 @@ end
 todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 
 AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-01-29 15:23:15\",\"updated_at\":\"2018-01-30 01:23:15\"}"
+```
+
+### Array
+
+```crystal
+todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
+TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-01-30 11:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-01-30 12:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false}]"
 ```
 
 ## Contributing
