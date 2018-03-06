@@ -106,17 +106,29 @@ class Crinder::Base(T)
   end
 
   macro __process
-    def self.render(object : T) : String
-      @@object = object
+    def self.render(object : Array(T)) : String
       JSON.build do |json|
-        json.object do
-          {% for name, options in SETTINGS[@type.id] %}
-            __if_show({{name}}) do
-              %field = "{{(options[:as] || name).id}}"
-              json.field %field, {{name}}
-            end
-          {% end %}
+        json.array do
+          object.each { |o| render_object(json, o) }
         end
+      end
+    end
+
+    def self.render(object : T) : String
+      JSON.build do |json|
+        render_object(json, object)
+      end
+    end
+
+    def self.render_object(json : ::JSON::Builder, object : T) : IO | Nil
+      @@object = object
+      json.object do
+        {% for name, options in SETTINGS[@type.id] %}
+          __if_show({{name}}) do
+            %field = "{{(options[:as] || name).id}}"
+            json.field %field, {{name}}
+          end
+        {% end %}
       end
     end
   end
