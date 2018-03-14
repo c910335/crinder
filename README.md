@@ -54,7 +54,7 @@ end
 
 todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 
-  pp AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07\",\"updated_at\":\"2018-03-15 05:55:07\"}"
+AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07\",\"updated_at\":\"2018-03-15 05:55:07\"}"
 ```
 
 ### Array
@@ -62,7 +62,7 @@ todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 ```crystal
 todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
 
-pp TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}]"
+TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}]"
 ```
 
 ### Nested
@@ -85,7 +85,7 @@ end
 
 todo = Todo.new("wtf", 3, time + 20.hours, time, nil)
 
-pp NestedTodoRenderer.render(todo) # => "{\"title\":\"wtf\",\"priority\":30,\"created_at\":{\"year\":2018,\"month\":3,\"day\":14,\"hour\":19,\"minute\":55,\"second\":7}}"
+NestedTodoRenderer.render(todo) # => "{\"title\":\"wtf\",\"priority\":30,\"created_at\":{\"year\":2018,\"month\":3,\"day\":14,\"hour\":19,\"minute\":55,\"second\":7}}"
 ```
 
 ## Contributing
