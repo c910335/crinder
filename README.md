@@ -33,10 +33,10 @@ class TodoRenderer < Crinder::Base(Todo)
   end
 end
 
-time = Time.new(2018, 1, 29, 15, 23, 15)
-todo = Todo.new("www", 8, time + 20.hours, time, nil)
+time = Time.new(2018, 3, 14, 19, 55, 7)
+todo = Todo.new("qaq", 8, time + 20.hours, time, nil)
 
-TodoRenderer.render(todo) # => "{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-01-30 11:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false}"
+TodoRenderer.render(todo) # => "{\"title\":\"qaq\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}"
 ```
 
 ### Inheritance
@@ -50,14 +50,38 @@ end
 
 todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 
-AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-01-29 15:23:15\",\"updated_at\":\"2018-01-30 01:23:15\"}"
+  pp AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07\",\"updated_at\":\"2018-03-15 05:55:07\"}"
 ```
 
 ### Array
 
 ```crystal
 todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
-TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-01-30 11:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-01-30 12:23:15\",\"created_at\":\"2018-01-29 15:23:15\",\"updated\":false}]"
+
+pp TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}]"
+```
+
+### Nested
+
+```crystal
+class TimeRenderer < Crinder::Base(Time?)
+  field year : Int
+  field month : Int
+  field day : Int
+  field hour : Int
+  field minute : Int
+  field second : Int
+end
+
+class NestedTodoRenderer < TodoRenderer
+  remove expires_at
+  remove updated
+  field created_at, with: TimeRenderer
+end
+
+todo = Todo.new("wtf", 3, time + 20.hours, time, nil)
+
+pp NestedTodoRenderer.render(todo) # => "{\"title\":\"wtf\",\"priority\":30,\"created_at\":{\"year\":2018,\"month\":3,\"day\":14,\"hour\":19,\"minute\":55,\"second\":7}}"
 ```
 
 ## Contributing
