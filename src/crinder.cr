@@ -106,10 +106,12 @@ class Crinder::Base(T)
   end
 
   macro __process
-    def self.render(object : Array(T)) : String
+    def self.render(objects : Array(T)) : String
       JSON.build do |json|
         json.array do
-          object.each { |o| render_object(json, o) }
+          objects.each do |object|
+            render_object(json, object)
+          end
         end
       end
     end
