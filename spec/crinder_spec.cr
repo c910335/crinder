@@ -25,6 +25,21 @@ class YetAnotherTodoRenderer < AnotherTodoRenderer
   remove updated_at
 end
 
+class TimeRenderer < Crinder::Base(Time?)
+  field year : Int
+  field month : Int
+  field day : Int
+  field hour : Int
+  field minute : Int
+  field second : Int
+end
+
+class NestedTodoRenderer < TodoRenderer
+  remove expires_at
+  remove updated
+  field created_at, with: TimeRenderer
+end
+
 describe Crinder::Base do
   describe ".render" do
     it "converts object to json" do
@@ -57,6 +72,15 @@ describe Crinder::Base do
         t = Todo.new("Wow", 9, time + 20.hours, time, time + 10.hours)
 
         YetAnotherTodoRenderer.render(t).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37","created_at":"2018-01-29 18:42:37"}))
+      end
+    end
+
+    context "with nested structure" do
+      it "converts object to json" do
+        time = Time.new(2018, 3, 14, 18, 49, 59)
+        t = Todo.new("WTF", 6, time, time, time)
+
+        NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59}}})
       end
     end
   end

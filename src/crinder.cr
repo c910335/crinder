@@ -54,15 +54,23 @@ class Crinder::Base(T)
 
   macro field(decl, **options)
     {%
-      name = decl.var.id
-      type = decl.type
+      name = decl
+      type = nil
+      if decl.is_a? TypeDeclaration
+        type = decl.type
+        name = decl.var
+      end
+      name = name.id
       SETTINGS[@type.id][name] = options || {} of Nil => Nil
       SETTINGS[@type.id][name][:type] = type
       value = options[:value]
+      render_with = options[:with]
     %}
 
     def self.{{name}}
-      {% if value.is_a? ProcLiteral %}
+      {% if render_with %}
+        object.{{name}}
+      {% elsif value.is_a? ProcLiteral %}
         {{value}}.call
       {% elsif !value.is_a? NilLiteral %}
         {{value}}
@@ -128,7 +136,13 @@ class Crinder::Base(T)
         {% for name, options in SETTINGS[@type.id] %}
           __if_show({{name}}) do
             %field = "{{(options[:as] || name).id}}"
-            json.field %field, {{name}}
+            {% if render_with = options[:with] %}
+              json.field %field do
+                {{render_with}}.render_object(json, {{name}})
+              end
+            {% else %}
+              json.field %field, {{name}}
+            {% end %}
           end
         {% end %}
       end
