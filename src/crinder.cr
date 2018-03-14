@@ -131,6 +131,11 @@ class Crinder::Base(T)
     end
 
     def self.render_object(json : ::JSON::Builder, object : T) : IO | Nil
+      {% if T >= Nil %}
+        if object.nil?
+          return json.null
+        end
+      {% end %}
       @@object = object
       json.object do
         {% for name, options in SETTINGS[@type.id] %}
