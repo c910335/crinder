@@ -1,4 +1,4 @@
-# crinder
+# Crinder
 
 [![Build Status](https://travis-ci.org/c910335/crinder.svg?branch=master)](https://travis-ci.org/c910335/crinder)
 [![GitHub releases](https://img.shields.io/github/release/c910335/crinder.svg)](https://github.com/c910335/crinder/releases)
