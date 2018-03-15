@@ -1,11 +1,35 @@
 require "json"
 require "./crinder/*"
 
+# `Crinder::Base` is the base renderer of type T.
+#
+# To define your own renderer, you need to inherit `Crinder::Base` with specific type and declare the fields with `field`.
+#
+# For example, this is a renderer of Time.
+#
+# ```
+# class TimeRenderer < Crinder::Base(Time)
+#   field year : Int
+#   field month : Int
+#   field day : Int
+#   field hour : Int
+#   field minute : Int
+#   field second : Int
+# end
+# ```
+#
+# Then `.render` will be auto generated.
+#
+# ```
+# time = Time.new(2018, 3, 15, 16, 21, 1)
+# TimeRenderer.render(time) # => "{\"year\":2018,\"month\":3,\"day\":15,\"hour\":16,\"minute\":21,\"second\":1}"
+# ```
 class Crinder::Base(T)
   class_property! object : T
 
   SETTINGS = {} of Nil => Nil
 
+  # :nodoc:
   macro __inherited
     {% SETTINGS[@type.id] = {} of Nil => Nil %}
     {% for key, value in SETTINGS[@type.superclass.id] %}
@@ -33,6 +57,7 @@ class Crinder::Base(T)
     end
   end
 
+  # :nodoc:
   macro __cast(name)
     {% type = SETTINGS[@type.id][name.id][:type].resolve %}
     {% if type <= Array %}
@@ -52,6 +77,7 @@ class Crinder::Base(T)
     {% end %}
   end
 
+  # Defines a field.
   macro field(decl, **options)
     {%
       name = decl
@@ -80,6 +106,7 @@ class Crinder::Base(T)
     end
   end
 
+  # Undefines a field.
   macro remove(name)
     {% name = name.id %}
     {% SETTINGS[@type.id][name] = {:unless => true} %}
@@ -89,6 +116,7 @@ class Crinder::Base(T)
     end
   end
 
+  # :nodoc:
   macro __if_show(name)
     {%
       options = SETTINGS[@type.id][name.id]
@@ -113,6 +141,7 @@ class Crinder::Base(T)
     end
   end
 
+  # :nodoc:
   macro __process
     def self.render(objects : Array(T)) : String
       JSON.build do |json|
