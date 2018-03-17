@@ -5,7 +5,7 @@ require "./crinder/*"
 #
 # To define your own renderer, you need to inherit `Crinder::Base` with specific type and declare the fields with `field`.
 #
-# For example, this is a renderer of `Time`.
+# For example, this is a renderer of [Time](https://crystal-lang.org/api/0.24.2/Time.html).
 #
 # ```
 # class TimeRenderer < Crinder::Base(Time)
@@ -27,7 +27,7 @@ require "./crinder/*"
 class Crinder::Base(T)
   @@object : T?
 
-  # the getter of the object to be rendered, which can be called in `value`, `if` or `unless`
+  # the getter of the object to be rendered, which can be used in `value`, `if` or `unless`
   def self.object
     @@object.not_nil!
   end
@@ -80,9 +80,10 @@ class Crinder::Base(T)
   # ```
   #
   # - **name**: (required) the field name to be rendered
-  # - **type**: the type for auto casting. For example, if it is `String`, `#to_s` of the field will be called for rendering. This is JSON Type but not Crystal Type, so it must be one of [JSON::Type](https://crystal-lang.org/api/0.24.2/JSON/Type.html), and should be `Int` instead of `Int64` or `Int32` if this field is integer. If it is `Nil` or not provided, no casting method will be performed.
-  # - **value**: a lambda, a class method or a constant to replace the value. By default, it is an auto generated class method `name` which casting the field to `type`. If `value` is provided, `type` becomes useless because `value` replaces the auto generated class method. However, it is still recommended to declare the type for understandability.
-  # - **with**: a renderer for this field. This field will be filtered by `type` and `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render(object : T, json : JSON::Builder)` where `T` is the original type of this field.
+  # - **as**: the name to be replaced in the rendered json
+  # - **type**: the type for auto casting. For example, if it is `String`, `#to_s` of the field will be called for rendering. This is JSON Type but not Crystal Type, so it must be one of [JSON::Type](https://crystal-lang.org/api/0.24.2/JSON/Type.html), and it should be `Int` instead of `Int64` or `Int32` if this field is integer, and so does `Float`. If it is `Nil` or not provided, no casting method will be performed.
+  # - **value**: a lambda, a class method or a constant to replace the value. By default, it is an auto generated class method `name` which casting the field to `type`. If `value` is provided, `type` becomes useless because `value` replaces the auto generated class method. However, it is still recommended to declare `type` for understandability. Don't use `value` and `as` together because it makes `name` meaningless.
+  # - **with**: a renderer for this field. This field will be filtered by `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render(object : T, json : JSON::Builder)` where `T` is the original type of this field.
   # - **if**: a lambda, a class method or a constant to determine whether to show this field.
   # - **unless**: opposite of `if`. If both `if` and `unless` are provided, this field is only showed when `if` is *truthy* and `unless` is *falsey*.
   macro field(decl, **options)
