@@ -1,11 +1,11 @@
 require "json"
 require "./crinder/*"
 
-# `Crinder::Base` is the base renderer of type T.
+# `Crinder::Base` is the base renderer of type `T`.
 #
 # To define your own renderer, you need to inherit `Crinder::Base` with specific type and declare the fields with `field`.
 #
-# For example, this is a renderer of Time.
+# For example, this is a renderer of `Time`.
 #
 # ```
 # class TimeRenderer < Crinder::Base(Time)
@@ -74,7 +74,7 @@ class Crinder::Base(T)
   # - **name**: (required) the field name to be rendered
   # - **type**: the type for auto casting. For example, if it is `String`, `#to_s` of the field will be called for rendering. This is JSON Type but not Crystal Type, so it must be one of [JSON::Type](https://crystal-lang.org/api/0.24.2/JSON/Type.html), and should be `Int` instead of `Int64` or `Int32` if this field is integer. If it is `Nil` or not provided, no casting method will be performed.
   # - **value**: a lambda, a class method or a constant to replace the value. By default, it is an auto generated class method `name` which casting the field to `type`. If `value` is provided, `type` becomes useless because `value` replaces the auto generated class method. However, it is still recommended to declare the type for understandability.
-  # - **with**: a renderer for this field. This field will be filtered by `type` and `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render_object(json : JSON::Builder, object : T)` where T is the original type of this field.
+  # - **with**: a renderer for this field. This field will be filtered by `type` and `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render(object : T, json : JSON::Builder)` where `T` is the original type of this field.
   # - **if**: a lambda, a class method or a constant to determine whether to show this field.
   # - **unless**: opposite of `if`. If both `if` and `unless` are provided, this field is only showed when `if` is *truthy* and `unless` is *falsey*.
   macro field(decl, **options)
@@ -166,7 +166,7 @@ class Crinder::Base(T)
       JSON.build do |json|
         json.array do
           objects.each do |object|
-            render_object(json, object)
+            render(object, json)
           end
         end
       end
@@ -174,11 +174,11 @@ class Crinder::Base(T)
 
     def self.render(object : T) : String
       JSON.build do |json|
-        render_object(json, object)
+        render(object, json)
       end
     end
 
-    def self.render_object(json : ::JSON::Builder, object : T) : IO | Nil
+    def self.render(object : T, json : JSON::Builder)
       {% if T >= Nil %}
         if object.nil?
           return json.null
@@ -191,7 +191,7 @@ class Crinder::Base(T)
             %field = "{{(options[:as] || name).id}}"
             {% if render_with = options[:with] %}
               json.field %field do
-                {{render_with}}.render_object(json, __value_of({{name}}))
+                {{render_with}}.render(__value_of({{name}}), json)
               end
             {% else %}
               json.field %field, __value_of({{name}})
