@@ -2,6 +2,15 @@ require "./spec_helper"
 
 record Todo, name : String, priority : Int32, expires_at : Time?, created_at : Time?, updated_at : Time?
 
+class TimeRenderer < Crinder::Base(Time?)
+  field year : Int
+  field month : Int
+  field day : Int
+  field hour : Int
+  field minute : Int
+  field second : Int
+end
+
 class TodoRenderer < Crinder::Base(Todo)
   field name : String, as: title
   field priority : Int, value: ->{ object.priority * 10 }
@@ -25,15 +34,6 @@ class YetAnotherTodoRenderer < AnotherTodoRenderer
   remove updated_at
 end
 
-class TimeRenderer < Crinder::Base(Time?)
-  field year : Int
-  field month : Int
-  field day : Int
-  field hour : Int
-  field minute : Int
-  field second : Int
-end
-
 class NestedTodoRenderer < TodoRenderer
   remove expires_at
   remove updated
@@ -42,6 +42,12 @@ end
 
 describe Crinder::Base do
   describe ".render" do
+    it "converts nil to null" do
+      t = nil
+
+      TimeRenderer.render(t).should eq("null")
+    end
+
     it "converts object to json" do
       time = Time.new(2018, 1, 29, 15, 23, 15)
       t = Todo.new("www", 8, time + 20.hours, time, nil)
