@@ -57,33 +57,13 @@ class Crinder::Base(T)
     end
   end
 
-  # :nodoc:
-  macro __cast(name)
-    {% type = SETTINGS[@type.id][name.id][:type].resolve %}
-    {% if type <= Array %}
-      object.{{name}}.to_a
-    {% elsif type <= Bool %}
-      !!object.{{name}}
-    {% elsif type <= Float %}
-      object.{{name}}.to_f64
-    {% elsif type <= Hash %}
-      object.{{name}}.to_h
-    {% elsif type <= String %}
-      object.{{name}}.to_s
-    {% elsif type <= Int %}
-      object.{{name}}.to_i64
-    {% else %}
-      object.{{name}}
-    {% end %}
-  end
-
   # Defines a field.
   macro field(decl, **options)
     {%
       name = decl
-      type = nil
+      type = Nil
       if decl.is_a? TypeDeclaration
-        type = decl.type
+        type = decl.type.resolve
         name = decl.var
       end
       name = name.id
@@ -93,17 +73,27 @@ class Crinder::Base(T)
       render_with = options[:with]
     %}
 
-    def self.{{name}}
-      {% if render_with %}
-        object.{{name}}
-      {% elsif value.is_a? ProcLiteral %}
-        {{value}}.call
-      {% elsif !value.is_a? NilLiteral %}
-        {{value}}
-      {% else %}
-        __cast({{name}})
-      {% end %}
-    end
+    {% if value.is_a? NilLiteral %}
+      {% SETTINGS[@type.id][name][:value] = name %}
+
+      def self.{{name}}
+        {% if type <= Array %}
+          object.{{name}}.to_a
+        {% elsif type <= Bool %}
+          !!object.{{name}}
+        {% elsif type <= Float %}
+          object.{{name}}.to_f64
+        {% elsif type <= Hash %}
+          object.{{name}}.to_h
+        {% elsif type <= String %}
+          object.{{name}}.to_s
+        {% elsif type <= Int %}
+          object.{{name}}.to_i64
+        {% else %}
+          object.{{name}}
+        {% end %}
+      end
+    {% end %}
   end
 
   # Undefines a field.
@@ -142,6 +132,16 @@ class Crinder::Base(T)
   end
 
   # :nodoc:
+  macro __value_of(name)
+    {% value = SETTINGS[@type.id][name.id][:value] %}
+    {% if value.is_a? ProcLiteral %}
+      {{value}}.call
+    {% else %}
+      {{value}}
+    {% end %}
+  end
+
+  # :nodoc:
   macro __process
     def self.render(objects : Array(T)) : String
       JSON.build do |json|
@@ -172,10 +172,10 @@ class Crinder::Base(T)
             %field = "{{(options[:as] || name).id}}"
             {% if render_with = options[:with] %}
               json.field %field do
-                {{render_with}}.render_object(json, {{name}})
+                {{render_with}}.render_object(json, __value_of({{name}}))
               end
             {% else %}
-              json.field %field, {{name}}
+              json.field %field, __value_of({{name}})
             {% end %}
           end
         {% end %}
