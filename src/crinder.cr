@@ -25,7 +25,15 @@ require "./crinder/*"
 # TimeRenderer.render(time) # => "{\"year\":2018,\"month\":3,\"day\":15,\"hour\":16,\"minute\":21,\"second\":1}"
 # ```
 class Crinder::Base(T)
-  class_property! object : T
+  @@object : T?
+
+  # the getter of the object to be rendered, which can be called in `value`, `if` or `unless`
+  def self.object
+    @@object.not_nil!
+  end
+
+  # :nodoc:
+  class_setter object
 
   SETTINGS = {} of Nil => Nil
 
