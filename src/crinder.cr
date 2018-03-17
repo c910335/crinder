@@ -32,9 +32,6 @@ class Crinder::Base(T)
     @@object.not_nil!
   end
 
-  # :nodoc:
-  class_setter object
-
   SETTINGS = {} of Nil => Nil
 
   # :nodoc:
