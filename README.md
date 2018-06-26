@@ -37,10 +37,10 @@ class TodoRenderer < Crinder::Base(Todo)
   end
 end
 
-time = Time.new(2018, 3, 14, 19, 55, 7)
+time = Time.utc(2018, 3, 14, 19, 55, 7)
 todo = Todo.new("qaq", 8, time + 20.hours, time, nil)
 
-TodoRenderer.render(todo) # => "{\"title\":\"qaq\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}"
+TodoRenderer.render(todo) # => "{\"title\":\"qaq\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false}"
 ```
 
 ### Inheritance
@@ -54,7 +54,7 @@ end
 
 todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 
-AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07\",\"updated_at\":\"2018-03-15 05:55:07\"}"
+AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated_at\":\"2018-03-15 05:55:07 UTC\"}"
 ```
 
 ### Array
@@ -62,7 +62,7 @@ AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"crea
 ```crystal
 todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
 
-TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07\",\"created_at\":\"2018-03-14 19:55:07\",\"updated\":false}]"
+TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false}]"
 ```
 
 ### Nested
