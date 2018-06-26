@@ -95,7 +95,6 @@ class Crinder::Base(T)
       SETTINGS[@type.id][name] = options || {} of Nil => Nil
       SETTINGS[@type.id][name][:type] = type
       value = options[:value]
-      render_with = options[:with]
     %}
 
     {% if value.is_a? NilLiteral %}

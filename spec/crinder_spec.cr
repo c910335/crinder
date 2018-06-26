@@ -49,41 +49,41 @@ describe Crinder::Base do
     end
 
     it "converts object to json" do
-      time = Time.new(2018, 1, 29, 15, 23, 15)
+      time = Time.utc(2018, 1, 29, 15, 23, 15)
       t = Todo.new("www", 8, time + 20.hours, time, nil)
 
-      TodoRenderer.render(t).should eq(%({"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false}))
+      TodoRenderer.render(t).should eq(%({"title":"www","priority":80,"deadline":"2018-01-30 11:23:15 UTC","created_at":"2018-01-29 15:23:15 UTC","updated":false}))
     end
 
     it "converts multiple objects to json" do
-      time = Time.new(2018, 1, 29, 15, 23, 15)
+      time = Time.utc(2018, 1, 29, 15, 23, 15)
       t = Todo.new("www", 8, time + 20.hours, time, nil)
       t2 = Todo.new("api", 10, time + 21.hours, time, nil)
 
-      TodoRenderer.render([t, t2]).should eq(%([{"title":"www","priority":80,"deadline":"2018-01-30 11:23:15","created_at":"2018-01-29 15:23:15","updated":false},{"title":"api","priority":100,"deadline":"2018-01-30 12:23:15","created_at":"2018-01-29 15:23:15","updated":false}]))
+      TodoRenderer.render([t, t2]).should eq(%([{"title":"www","priority":80,"deadline":"2018-01-30 11:23:15 UTC","created_at":"2018-01-29 15:23:15 UTC","updated":false},{"title":"api","priority":100,"deadline":"2018-01-30 12:23:15 UTC","created_at":"2018-01-29 15:23:15 UTC","updated":false}]))
     end
 
     context "with inheritance" do
       it "converts object to json" do
-        time = Time.new(2018, 1, 29, 17, 21, 34)
+        time = Time.utc(2018, 1, 29, 17, 21, 34)
         t = Todo.new("QAQ", 3, time + 20.hours, time, time + 10.hours)
 
-        AnotherTodoRenderer.render(t).should eq(%({"title":"QAQ","priority":30,"expires_at":"2018-01-30 13:21:34","updated_at":"2018-01-30 03:21:34"}))
+        AnotherTodoRenderer.render(t).should eq(%({"title":"QAQ","priority":30,"expires_at":"2018-01-30 13:21:34 UTC","updated_at":"2018-01-30 03:21:34 UTC"}))
       end
     end
 
     context "with multilevel inheritance" do
       it "converts object to json" do
-        time = Time.new(2018, 1, 29, 18, 42, 37)
+        time = Time.utc(2018, 1, 29, 18, 42, 37)
         t = Todo.new("Wow", 9, time + 20.hours, time, time + 10.hours)
 
-        YetAnotherTodoRenderer.render(t).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37","created_at":"2018-01-29 18:42:37"}))
+        YetAnotherTodoRenderer.render(t).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37 UTC","created_at":"2018-01-29 18:42:37 UTC"}))
       end
     end
 
     context "with nested structure" do
       it "converts object to json" do
-        time = Time.new(2018, 3, 14, 18, 49, 59)
+        time = Time.utc(2018, 3, 14, 18, 49, 59)
         t = Todo.new("WTF", 6, time, time, time)
 
         NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59}}})
