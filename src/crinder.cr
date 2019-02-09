@@ -86,9 +86,11 @@ class Crinder::Base(T)
   macro field(decl, **options)
     {%
       name = decl
-      type = Nil
+      type = Object
       if decl.is_a? TypeDeclaration
-        type = decl.type.resolve
+        if decl.type.is_a? Path
+          type = decl.type.resolve
+        end
         name = decl.var
       end
       name = name.id
@@ -98,9 +100,16 @@ class Crinder::Base(T)
     %}
 
     {% if value.is_a? NilLiteral %}
-      {% SETTINGS[@type.id][name][:value] = name %}
+      {% SETTINGS[@type.id][name][:value] = ("__casted_" + name.stringify).id %}
 
       def self.{{name}}
+        object.{{name}}
+      end
+
+      def self.__casted_{{name}}
+        {% if type <= Nil %}
+          return nil if object.{{name}}.nil?
+        {% end %}
         {% if type <= Array %}
           object.{{name}}.to_a
         {% elsif type <= Bool %}
@@ -126,6 +135,10 @@ class Crinder::Base(T)
     {% SETTINGS[@type.id][name] = {:unless => true} %}
 
     def self.{{name}}
+      nil
+    end
+
+    def self.__casted_{{name}}
       nil
     end
   end
