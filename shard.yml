@@ -5,6 +5,6 @@ version: 0.1.4
 authors:
   - Tatsiujin Chin <c910335@gmail.com>
 
-crystal: 0.25.0
+crystal: 0.27.2
 
 license: MIT
