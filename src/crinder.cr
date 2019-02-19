@@ -99,12 +99,12 @@ class Crinder::Base(T)
       value = options[:value]
     %}
 
+    def self.{{name}}
+      object.{{name}}
+    end
+
     {% if value.is_a? NilLiteral %}
       {% SETTINGS[@type.id][name][:value] = ("__casted_" + name.stringify).id %}
-
-      def self.{{name}}
-        object.{{name}}
-      end
 
       def self.__casted_{{name}}
         {% if type <= Nil %}
