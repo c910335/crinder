@@ -87,11 +87,18 @@ class Crinder::Base(T)
     {%
       name = decl
       type = Object
+      nilable = false
       if decl.is_a? TypeDeclaration
-        if decl.type.is_a? Path
-          type = decl.type.resolve
-        end
         name = decl.var
+        type = decl.type
+      end
+      if type.is_a? Union
+        nilable = type.types.any?(&.resolve.nilable?)
+        type = type.types.reject(&.resolve.nilable?)[0]
+      end
+      if type.is_a? Path
+        type = type.resolve
+        nilable = nilable || type == Nil
       end
       name = name.id
       SETTINGS[@type.id][name] = options || {} of Nil => Nil
@@ -107,7 +114,7 @@ class Crinder::Base(T)
       {% SETTINGS[@type.id][name][:value] = ("__casted_" + name.stringify).id %}
 
       def self.__casted_{{name}}
-        {% if type <= Nil %}
+        {% if nilable %}
           return nil if object.{{name}}.nil?
         {% end %}
         {% if type <= Array %}
