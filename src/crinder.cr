@@ -32,6 +32,7 @@ class Crinder::Base(T)
     @@object.not_nil!
   end
 
+  # :nodoc:
   SETTINGS = {} of Nil => Nil
 
   # :nodoc:
@@ -64,6 +65,8 @@ class Crinder::Base(T)
 
   # Defines a field.
   #
+  # This also creates an alias `{{name}}` for `object.{{name}}`, which can be used in `value`, `if` or `unless`.
+  #
   # ### Example
   #
   # See [README](../index.html) or [Overview](#top).
@@ -86,10 +89,19 @@ class Crinder::Base(T)
   macro field(decl, **options)
     {%
       name = decl
-      type = Nil
+      type = Object
+      nilable = false
       if decl.is_a? TypeDeclaration
-        type = decl.type.resolve
         name = decl.var
+        type = decl.type
+      end
+      if type.is_a? Union
+        nilable = type.types.any?(&.resolve.nilable?)
+        type = type.types.reject(&.resolve.nilable?)[0]
+      end
+      if type.is_a? Path
+        type = type.resolve
+        nilable = nilable || type == Nil
       end
       name = name.id
       SETTINGS[@type.id][name] = options || {} of Nil => Nil
@@ -97,10 +109,17 @@ class Crinder::Base(T)
       value = options[:value]
     %}
 
-    {% if value.is_a? NilLiteral %}
-      {% SETTINGS[@type.id][name][:value] = name %}
+    def self.{{name}}
+      object.{{name}}
+    end
 
-      def self.{{name}}
+    {% if value.is_a? NilLiteral %}
+      {% SETTINGS[@type.id][name][:value] = ("__casted_" + name.stringify).id %}
+
+      def self.__casted_{{name}}
+        {% if nilable %}
+          return nil if object.{{name}}.nil?
+        {% end %}
         {% if type <= Array %}
           object.{{name}}.to_a
         {% elsif type <= Bool %}
@@ -126,6 +145,10 @@ class Crinder::Base(T)
     {% SETTINGS[@type.id][name] = {:unless => true} %}
 
     def self.{{name}}
+      nil
+    end
+
+    def self.__casted_{{name}}
       nil
     end
   end

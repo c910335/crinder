@@ -1,12 +1,9 @@
 language: crystal
 
-install:
-  - pushd ~ && git clone https://github.com/veelenga/ameba.git && cd ameba && make build && export PATH=$PATH:$PWD/bin && popd
-
 script:
   - crystal spec
   - crystal tool format --check
-  - ameba
+  - bin/ameba
   - crystal docs
 
 deploy:

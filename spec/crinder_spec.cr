@@ -13,9 +13,9 @@ end
 
 class TodoRenderer < Crinder::Base(Todo)
   field name : String, as: title
-  field priority : Int, value: ->{ object.priority * 10 }
-  field expires_at : String, as: deadline, unless: ->{ object.priority < 3 }
-  field created_at : String, if: ->{ object.priority > 5 }
+  field priority : Int, value: ->{ priority * 10 }
+  field expires_at : String, as: deadline, unless: ->{ priority < 3 }
+  field created_at : String, if: ->{ priority > 5 }
   field updated : Bool, value: updated?
 
   def self.updated?
@@ -24,8 +24,8 @@ class TodoRenderer < Crinder::Base(Todo)
 end
 
 class AnotherTodoRenderer < TodoRenderer
-  field expires_at : String, unless: ->{ object.priority < 1 }
-  field created_at : String, if: ->{ object.priority > 8 }
+  field expires_at : String, unless: ->{ priority < 1 }
+  field created_at : String, if: ->{ priority > 8 }
   field updated_at : String
   remove updated
 end
@@ -38,6 +38,13 @@ class NestedTodoRenderer < TodoRenderer
   remove expires_at
   remove updated
   field created_at, with: TimeRenderer
+end
+
+class NilableTodoRenderer < TodoRenderer
+  field expires_at : String?
+  field created_at : String?
+  field updated_at : String?
+  remove updated
 end
 
 describe Crinder::Base do
@@ -87,6 +94,14 @@ describe Crinder::Base do
         t = Todo.new("WTF", 6, time, time, time)
 
         NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59}}})
+      end
+    end
+
+    context "with nil attributes" do
+      it "converts object to json" do
+        t = Todo.new("IDK", 10, nil, nil, nil)
+
+        NilableTodoRenderer.render(t).should eq(%{{"title":"IDK","priority":100,"expires_at":null,"created_at":null,"updated_at":null}})
       end
     end
   end
