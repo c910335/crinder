@@ -119,21 +119,24 @@ class Crinder::Base(T)
       def self.__casted_{{name}}
         {% if nilable %}
           return nil if object.{{name}}.nil?
+          %not_nil = object.{{name}}.not_nil!
+        {% else %}
+          %not_nil = object.{{name}}
         {% end %}
         {% if type <= Array %}
-          object.{{name}}.to_a
+          %not_nil.to_a
         {% elsif type <= Bool %}
-          !!object.{{name}}
+          !!%not_nil
         {% elsif type <= Float %}
-          object.{{name}}.to_f64
+          %not_nil.to_f64
         {% elsif type <= Hash %}
-          object.{{name}}.to_h
+          %not_nil.to_h
         {% elsif type <= String %}
-          object.{{name}}.to_s
+          %not_nil.to_s
         {% elsif type <= Int %}
-          object.{{name}}.to_i64
+          %not_nil.to_i64
         {% else %}
-          object.{{name}}
+          %not_nil
         {% end %}
       end
     {% end %}
