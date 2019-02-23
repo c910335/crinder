@@ -32,6 +32,7 @@ class Crinder::Base(T)
     @@object.not_nil!
   end
 
+  # :nodoc:
   SETTINGS = {} of Nil => Nil
 
   # :nodoc:
@@ -63,6 +64,8 @@ class Crinder::Base(T)
   end
 
   # Defines a field.
+  #
+  # This also creates an alias `{{name}}` for `object.{{name}}`, which can be used in `value`, `if` or `unless`.
   #
   # ### Example
   #

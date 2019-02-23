@@ -27,9 +27,9 @@ record Todo, name : String, priority : Int32, expires_at : Time?, created_at : T
 
 class TodoRenderer < Crinder::Base(Todo)
   field name : String, as: title
-  field priority : Int, value: ->{ object.priority * 10 }
-  field expires_at : String, as: deadline, unless: ->{ object.priority < 3 }
-  field created_at : String, if: ->{ object.priority > 5 }
+  field priority : Int, value: ->{ priority * 10 }
+  field expires_at : String, as: deadline, unless: ->{ priority < 3 }
+  field created_at : String, if: ->{ priority > 5 }
   field updated : Bool, value: updated?
 
   def self.updated?
@@ -86,6 +86,21 @@ end
 todo = Todo.new("wtf", 3, time + 20.hours, time, nil)
 
 NestedTodoRenderer.render(todo) # => "{\"title\":\"wtf\",\"priority\":30,\"created_at\":{\"year\":2018,\"month\":3,\"day\":14,\"hour\":19,\"minute\":55,\"second\":7}}"
+```
+
+### Nilable
+
+```crystal
+class NilableTodoRenderer < TodoRenderer
+  field expires_at : String?
+  field created_at : String?
+  field updated_at : String?
+  remove updated
+end
+
+todo = Todo.new("IDK", 10, nil, nil, nil)
+
+NilableTodoRenderer.render(todo) # => "{\"title\":\"IDK\",\"priority\":100,\"expires_at\":null,\"created_at\":null,\"updated_at\":null}"
 ```
 
 ## Contributing
