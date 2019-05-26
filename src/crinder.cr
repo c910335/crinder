@@ -193,17 +193,7 @@ class Crinder::Base(T)
 
   # :nodoc:
   macro __process
-    def self.render(objects : Array(T)) : String
-      JSON.build do |json|
-        json.array do
-          objects.each do |object|
-            render(object, json)
-          end
-        end
-      end
-    end
-
-    def self.render(object : T) : String
+    def self.render(object : T | Array(T)) : String
       JSON.build do |json|
         render(object, json)
       end
