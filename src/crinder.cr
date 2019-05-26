@@ -209,6 +209,14 @@ class Crinder::Base(T)
       end
     end
 
+    def self.render(objects : Array(T), json : JSON::Builder)
+      json.array do
+        objects.each do |object|
+          render(object, json)
+        end
+      end
+    end
+
     def self.render(object : T, json : JSON::Builder)
       {% if T >= Nil %}
         if object.nil?
