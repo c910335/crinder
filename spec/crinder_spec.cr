@@ -47,6 +47,18 @@ class NilableTodoRenderer < TodoRenderer
   remove updated
 end
 
+record TodoSubtasked, name : String, subtasks : Array(Subtask)
+record Subtask, name : String
+
+class SubtaskRenderer < Crinder::Base(Subtask)
+  field name : String, as: subname
+end
+
+class TodoSubtaskedRenderer < Crinder::Base(TodoSubtasked)
+  field name : String, as: title
+  field subtasks, with: SubtaskRenderer
+end
+
 describe Crinder::Base do
   describe ".render" do
     it "converts nil to null" do
@@ -94,6 +106,15 @@ describe Crinder::Base do
         t = Todo.new("WTF", 6, time, time, time)
 
         NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59}}})
+      end
+    end
+
+    context "with nested array" do
+      it "converts objects to json array" do
+        subtasks = [Subtask.new("foo"), Subtask.new("bar")]
+        todo = TodoSubtasked.new("Subtasked", subtasks)
+
+        TodoSubtaskedRenderer.render(todo).should eq(%{{"title":"Subtasked","subtasks":[{"subname":"foo"},{"subname":"bar"}]}})
       end
     end
 
