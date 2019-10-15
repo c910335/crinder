@@ -33,18 +33,13 @@ class Crinder::Base(T)
   end
 
   # :nodoc:
-  SETTINGS = {} of Nil => Nil
-
-  # :nodoc:
   macro __inherited
-    {% SETTINGS[@type.id] = {} of Nil => Nil %}
-    {% for key, value in SETTINGS[@type.superclass.id] %}
-      {% SETTINGS[@type.id][key] = value %}
-    {% end %}
+    FIELDS = {} of Nil => Nil
 
-    macro inherited
-      __inherited
-    end
+    \{% for name, options in {{@type.superclass}}::FIELDS %}
+      \{% FIELDS[name] = options %}
+      __field(\{{name}})
+    \{% end %}
 
     macro finished
       __process
@@ -52,7 +47,7 @@ class Crinder::Base(T)
   end
 
   macro inherited
-    {% SETTINGS[@type.id] = {} of Nil => Nil %}
+    FIELDS = {} of Nil => Nil
 
     macro inherited
       __inherited
@@ -104,48 +99,57 @@ class Crinder::Base(T)
         nilable = nilable || type == Nil
       end
       name = name.id
-      SETTINGS[@type.id][name] = options || {} of Nil => Nil
-      SETTINGS[@type.id][name][:type] = type
-      value = options[:value]
+      FIELDS[name] = options || {} of Nil => Nil
+      FIELDS[name][:type] = type
+      FIELDS[name][:nilable] = nilable
     %}
+    __field({{name}})
+  end
 
-    def self.{{name}}
-      object.{{name}}
-    end
+  # :nodoc:
+  macro __field(name)
+    {% name = name.id %}
+    {% if FIELDS[name] %}
 
-    {% if value.is_a? NilLiteral %}
-      {% SETTINGS[@type.id][name][:value] = ("__casted_" + name.stringify).id %}
-
-      def self.__casted_{{name}}
-        {% if nilable %}
-          return nil if object.{{name}}.nil?
-          %not_nil = object.{{name}}.not_nil!
-        {% else %}
-          %not_nil = object.{{name}}
-        {% end %}
-        {% if type <= Array %}
-          %not_nil.to_a
-        {% elsif type <= Bool %}
-          !!%not_nil
-        {% elsif type <= Float %}
-          %not_nil.to_f64
-        {% elsif type <= Hash %}
-          %not_nil.to_h
-        {% elsif type <= String %}
-          %not_nil.to_s
-        {% elsif type <= Int %}
-          %not_nil.to_i64
-        {% else %}
-          %not_nil
-        {% end %}
+      def self.{{name}}
+        object.{{name}}
       end
+
+      {% if FIELDS[name][:value].is_a? NilLiteral %}
+        {% FIELDS[name][:value] = ("__casted_" + name.stringify).id %}
+        {% type = FIELDS[name][:type] %}
+
+        def self.__casted_{{name}}
+          {% if FIELDS[name][:nilable] %}
+            return nil if object.{{name}}.nil?
+            %not_nil = object.{{name}}.not_nil!
+          {% else %}
+            %not_nil = object.{{name}}
+          {% end %}
+          {% if type <= Array %}
+            %not_nil.to_a
+          {% elsif type <= Bool %}
+            !!%not_nil
+          {% elsif type <= Float %}
+            %not_nil.to_f64
+          {% elsif type <= Hash %}
+            %not_nil.to_h
+          {% elsif type <= String %}
+            %not_nil.to_s
+          {% elsif type <= Int %}
+            %not_nil.to_i64
+          {% else %}
+            %not_nil
+          {% end %}
+        end
+      {% end %}
     {% end %}
   end
 
   # Undefines a field.
   macro remove(name)
     {% name = name.id %}
-    {% SETTINGS[@type.id][name] = {:unless => true} %}
+    {% FIELDS[name] = nil %}
 
     def self.{{name}}
       nil
@@ -159,7 +163,7 @@ class Crinder::Base(T)
   # :nodoc:
   macro __if_show(name)
     {%
-      options = SETTINGS[@type.id][name.id]
+      options = FIELDS[name.id]
       show_unless = options[:unless]
       show_if = options[:if]
       show_if = true if show_if.is_a? NilLiteral
@@ -183,7 +187,7 @@ class Crinder::Base(T)
 
   # :nodoc:
   macro __value_of(name)
-    {% value = SETTINGS[@type.id][name.id][:value] %}
+    {% value = FIELDS[name.id][:value] %}
     {% if value.is_a? ProcLiteral %}
       {{value}}.call
     {% else %}
@@ -215,17 +219,19 @@ class Crinder::Base(T)
       {% end %}
       @@object = object
       json.object do
-        {% for name, options in SETTINGS[@type.id] %}
-          __if_show({{name}}) do
-            %field = "{{(options[:as] || name).id}}"
-            {% if render_with = options[:with] %}
-              json.field %field do
-                {{render_with}}.render(__value_of({{name}}), json)
-              end
-            {% else %}
-              json.field %field, __value_of({{name}})
-            {% end %}
-          end
+        {% for name, options in FIELDS %}
+          {% if options %}
+            __if_show({{name}}) do
+              %field = "{{(options[:as] || name).id}}"
+              {% if render_with = options[:with] %}
+                json.field %field do
+                  {{render_with}}.render(__value_of({{name}}), json)
+                end
+              {% else %}
+                json.field %field, __value_of({{name}})
+              {% end %}
+            end
+          {% end %}
         {% end %}
       end
     end
