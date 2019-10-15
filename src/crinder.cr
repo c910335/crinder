@@ -26,6 +26,7 @@ require "./crinder/*"
 # ```
 class Crinder::Base(T)
   include Field
+  include Option
 
   @@object : T?
 
@@ -37,10 +38,15 @@ class Crinder::Base(T)
   # :nodoc:
   macro __inherited
     FIELDS = {} of Nil => Nil
+    OPTIONS = {} of Nil => Nil
 
     \{% for name, options in {{@type.superclass}}::FIELDS %}
       \{% FIELDS[name] = options %}
       __field(\{{name}})
+    \{% end %}
+
+    \{% for name, options in {{@type.superclass}}::OPTIONS %}
+      \{% OPTIONS[name] = options %}
     \{% end %}
 
     macro finished
@@ -50,6 +56,7 @@ class Crinder::Base(T)
 
   macro inherited
     FIELDS = {} of Nil => Nil
+    OPTIONS = {} of Nil => Nil
 
     macro inherited
       __inherited
@@ -62,21 +69,36 @@ class Crinder::Base(T)
 
   # :nodoc:
   macro __process
-    def self.render(object : T | Array(T)) : String
+    def self.render(object : T | Array(T), **options) : String
       JSON.build do |json|
-        render(object, json)
+        render(object, json, **options)
       end
     end
 
-    def self.render(objects : Array(T), json : JSON::Builder)
+    def self.render(objects : Array(T), json : JSON::Builder, **options)
       json.array do
         objects.each do |object|
-          render(object, json)
+          render(object, json, **options)
         end
       end
     end
 
-    def self.render(object : T, json : JSON::Builder)
+    def self.render(
+      object : T,
+      json : JSON::Builder\
+      {% if !OPTIONS.empty? %}\
+        , *\
+        {% for name, options in OPTIONS %}\
+          , {{name}}\
+          {% if !options[:type].is_a? NilLiteral %} \
+            : {{options[:type]}}\
+          {% end %}\
+          {% if !options[:default].is_a? NilLiteral %} \
+            = {{options[:default]}}\
+          {% end %}\
+        {% end %}
+      {% end %}
+    )
       {% if T >= Nil %}
         if object.nil?
           return json.null
