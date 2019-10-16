@@ -1,5 +1,5 @@
 module Crinder::Option
-  macro option(decl, &block)
+  macro option(decl)
     {%
       if decl.is_a? TypeDeclaration
         name = decl.var.id
