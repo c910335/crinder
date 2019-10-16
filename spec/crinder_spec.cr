@@ -83,10 +83,9 @@ describe Crinder::Base do
 
     it "converts multiple objects to json" do
       time = Time.utc(2018, 1, 29, 15, 23, 15)
-      t = Todo.new("www", 8, time + 20.hours, time, nil)
-      t2 = Todo.new("api", 10, time + 21.hours, time, nil)
+      todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
 
-      TodoRenderer.render([t, t2]).should eq(%([{"title":"www","priority":80,"deadline":"2018-01-30 11:23:15 UTC","updated":false},{"title":"api","priority":100,"deadline":"2018-01-30 12:23:15 UTC","updated":false}]))
+      TodoRenderer.render(todos).should eq(%([{"title":"www","priority":80,"deadline":"2018-01-30 11:23:15 UTC","updated":false},{"title":"api","priority":100,"deadline":"2018-01-30 12:23:15 UTC","updated":false}]))
     end
 
     context "with inheritance" do
