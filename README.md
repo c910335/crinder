@@ -29,8 +29,10 @@ class TodoRenderer < Crinder::Base(Todo)
   field name : String, as: title
   field priority : Int, value: ->{ priority * 10 }
   field expires_at : String, as: deadline, unless: ->{ priority < 3 }
-  field created_at : String, if: ->{ priority > 5 }
+  field created_at : String, if: ->{ created_at? }
   field updated : Bool, value: updated?
+
+  option created_at? : Bool = false
 
   def self.updated?
     !object.updated_at.nil?
@@ -40,21 +42,21 @@ end
 time = Time.utc(2018, 3, 14, 19, 55, 7)
 todo = Todo.new("qaq", 8, time + 20.hours, time, nil)
 
-TodoRenderer.render(todo) # => "{\"title\":\"qaq\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false}"
+TodoRenderer.render(todo, created_at?: true) # => "{\"title\":\"qaq\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false}"
 ```
 
 ### Inheritance
 
 ```crystal
 class AnotherTodoRenderer < TodoRenderer
-  remove updated
-  remove expires_at
+  field expires_at : String, unless: ->{ priority < 1 }
   field updated_at : String
+  remove updated
 end
 
 todo = Todo.new("wow", 6, time + 20.hours, time, time + 10.hours)
 
-AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated_at\":\"2018-03-15 05:55:07 UTC\"}"
+AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"expires_at\":\"2018-03-15 15:55:07 UTC\",\"updated_at\":\"2018-03-15 05:55:07 UTC\"}"
 ```
 
 ### Array
@@ -62,7 +64,7 @@ AnotherTodoRenderer.render(todo) # => "{\"title\":\"wow\",\"priority\":60,\"crea
 ```crystal
 todos = [Todo.new("www", 8, time + 20.hours, time, nil), Todo.new("api", 10, time + 21.hours, time, nil)]
 
-TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07 UTC\",\"created_at\":\"2018-03-14 19:55:07 UTC\",\"updated\":false}]"
+TodoRenderer.render(todos) # => "[{\"title\":\"www\",\"priority\":80,\"deadline\":\"2018-03-15 15:55:07 UTC\",\"updated\":false},{\"title\":\"api\",\"priority\":100,\"deadline\":\"2018-03-15 16:55:07 UTC\",\"updated\":false}]"
 ```
 
 ### Nested
