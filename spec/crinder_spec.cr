@@ -32,9 +32,13 @@ class AnotherTodoRenderer < TodoRenderer
 end
 
 class YetAnotherTodoRenderer < AnotherTodoRenderer
+  field description : String, value: description
+  field remark : String, value: remark
   remove updated_at
 
+  option description : String
   option created_at?
+  option remark = "..."
 end
 
 class NestedTodoRenderer < TodoRenderer
@@ -99,7 +103,7 @@ describe Crinder::Base do
         time = Time.utc(2018, 1, 29, 18, 42, 37)
         t = Todo.new("Wow", 9, time + 20.hours, time, time + 10.hours)
 
-        YetAnotherTodoRenderer.render(t, created_at?: true).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37 UTC","created_at":"2018-01-29 18:42:37 UTC"}))
+        YetAnotherTodoRenderer.render(t, description: "OAO", created_at?: true).should eq(%({"title":"Wow","priority":90,"expires_at":"2018-01-30 14:42:37 UTC","created_at":"2018-01-29 18:42:37 UTC","description":"OAO","remark":"..."}))
       end
     end
 
