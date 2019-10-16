@@ -3,9 +3,9 @@ require "./crinder/*"
 
 # `Crinder::Base` is the base renderer of type `T`.
 #
-# To define your own renderer, you need to inherit `Crinder::Base` with specific type and declare the fields with `field`.
+# To define your own renderer, you need to inherit `Crinder::Base` with specific type and declare the fields with `Crinder::Field.field`.
 #
-# For example, this is a renderer of [Time](https://crystal-lang.org/api/0.24.2/Time.html).
+# For example, this is a renderer of [Time](https://crystal-lang.org/api/latest/Time.html).
 #
 # ```
 # class TimeRenderer < Crinder::Base(Time)

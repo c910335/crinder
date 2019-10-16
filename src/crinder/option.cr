@@ -1,4 +1,13 @@
 module Crinder::Option
+  # Defines an option that becomes a named argument of `.render`.
+  #
+  # ```
+  # option name : type = default
+  # ```
+  #
+  # - **name**: (required) the local variable name for the option that can be used in `value`, `if` or `unless`.
+  # - **type**: the type of the option.
+  # - **default**: the default value of the option.
   macro option(decl)
     {%
       if decl.is_a? TypeDeclaration
