@@ -9,10 +9,10 @@ module Crinder::Field
   #
   # ### Usage
   #
-  # `field` requries a name or a type declaration and a series of named arguments as options.
+  # `field` requries a name or a type declaration and a series of named arguments.
   #
   # ```
-  # field name : type, **options
+  # field name : type, **named_arguments
   # ```
   #
   # - **name**: (required) the field name to be rendered
@@ -20,6 +20,7 @@ module Crinder::Field
   # - **type**: the type for auto casting. For example, if it is `String`, `#to_s` of the field will be called for rendering. This is JSON Type but not Crystal Type, so it must be one of [JSON::Any::Type](https://crystal-lang.org/api/latest/JSON/Any/Type.html), and it should be `Int` instead of `Int64` or `Int32` if this field is integer, and so does `Float`. If it is `Nil` or not provided, no casting method will be performed.
   # - **value**: a lambda, a class method or a constant to replace the value. By default, it is an auto generated class method `name` which casting the field to `type`. If `value` is provided, `type` becomes useless because `value` replaces the auto generated class method. However, it is still recommended to declare `type` for understandability. Don't use `value` and `as` together because it makes `name` meaningless.
   # - **with**: a renderer for this field. This field will be filtered by `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render(object : T | Array(T), json : JSON::Builder)` where `T` is the original type of this field.
+  # - **options**: options passing to the `with` renderer.
   # - **if**: a lambda, a class method or a constant to determine whether to show this field.
   # - **unless**: opposite of `if`. If both `if` and `unless` are provided, this field is only showed when `if` is *truthy* and `unless` is *falsey*.
   macro field(decl, **nargs)
