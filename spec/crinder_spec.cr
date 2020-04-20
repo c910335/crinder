@@ -6,9 +6,11 @@ class TimeRenderer < Crinder::Base(Time?)
   field year : Int
   field month : Int
   field day : Int
-  field hour : Int
-  field minute : Int
-  field second : Int
+  field hour : Int, unless: date_only?
+  field minute : Int, unless: date_only?
+  field second : Int, unless: date_only?
+
+  option date_only? : Bool = false
 end
 
 class TodoRenderer < Crinder::Base(Todo)
@@ -45,6 +47,7 @@ class NestedTodoRenderer < TodoRenderer
   remove expires_at
   remove updated
   field created_at, with: TimeRenderer
+  field updated_at, with: TimeRenderer, options: {date_only?: true}
 end
 
 class NilableTodoRenderer < TodoRenderer
@@ -111,7 +114,7 @@ describe Crinder::Base do
         time = Time.utc(2018, 3, 14, 18, 49, 59)
         t = Todo.new("WTF", 6, time, time, time)
 
-        NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59}}})
+        NestedTodoRenderer.render(t).should eq(%{{"title":"WTF","priority":60,"created_at":{"year":2018,"month":3,"day":14,"hour":18,"minute":49,"second":59},"updated_at":{"year":2018,"month":3,"day":14}}})
       end
     end
 

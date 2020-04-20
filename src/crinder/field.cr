@@ -22,7 +22,7 @@ module Crinder::Field
   # - **with**: a renderer for this field. This field will be filtered by `value` before passing to it. It is not necessary to be a subclass of `Crinder::Base`, but it must have the class method `render(object : T | Array(T), json : JSON::Builder)` where `T` is the original type of this field.
   # - **if**: a lambda, a class method or a constant to determine whether to show this field.
   # - **unless**: opposite of `if`. If both `if` and `unless` are provided, this field is only showed when `if` is *truthy* and `unless` is *falsey*.
-  macro field(decl, **options)
+  macro field(decl, **nargs)
     {%
       name = decl
       type = Object
@@ -35,12 +35,12 @@ module Crinder::Field
         nilable = type.types.any?(&.resolve.nilable?)
         type = type.types.reject(&.resolve.nilable?)[0]
       end
-      if type.is_a? Path
+      if type.is_a? Path || type.is_a? Generic
         type = type.resolve
         nilable = nilable || type == Nil
       end
       name = name.id
-      FIELDS[name] = options || {} of Nil => Nil
+      FIELDS[name] = nargs || {} of Nil => Nil
       FIELDS[name][:type] = type
       FIELDS[name][:nilable] = nilable
     %}

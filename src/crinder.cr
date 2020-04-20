@@ -112,7 +112,11 @@ class Crinder::Base(T)
               %field = "{{(options[:as] || name).id}}"
               {% if render_with = options[:with] %}
                 json.field %field do
-                  {{render_with}}.render(__value_of({{name}}), json)
+                  {% if render_options = options[:options] %}
+                    {{render_with}}.render(__value_of({{name}}), json, {{render_options.double_splat}})
+                  {% else %}
+                    {{render_with}}.render(__value_of({{name}}), json)
+                  {% end %}
                 end
               {% else %}
                 json.field %field, __value_of({{name}})
