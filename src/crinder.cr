@@ -35,32 +35,20 @@ class Crinder::Base(T)
     @@object.not_nil!
   end
 
-  # :nodoc:
-  macro __inherited
-    FIELDS = {} of Nil => Nil
-    OPTIONS = {} of Nil => Nil
-
-    \{% for name, options in {{@type.superclass}}::FIELDS %}
-      \{% FIELDS[name] = options %}
-      __field(\{{name}})
-    \{% end %}
-
-    \{% for name, options in {{@type.superclass}}::OPTIONS %}
-      \{% OPTIONS[name] = options %}
-    \{% end %}
-
-    macro finished
-      __process
-    end
-  end
-
   macro inherited
     FIELDS = {} of Nil => Nil
     OPTIONS = {} of Nil => Nil
 
-    macro inherited
-      __inherited
-    end
+    {% if @type.superclass.name(generic_args: false) != "Crinder::Base" %}
+      \{% for name, options in {{@type.superclass}}::FIELDS %}
+        \{% FIELDS[name] = options %}
+        __field(\{{name}})
+      \{% end %}
+
+      \{% for name, options in {{@type.superclass}}::OPTIONS %}
+        \{% OPTIONS[name] = options %}
+      \{% end %}
+    {% end %}
 
     macro finished
       __process
