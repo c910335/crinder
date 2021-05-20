@@ -1,6 +1,6 @@
 # Crinder
 
-[![Build Status](https://travis-ci.com/c910335/crinder.svg?branch=master)](https://travis-ci.com/c910335/crinder)
+[![Crystal CI](https://github.com/c910335/crinder/actions/workflows/crystal.yml/badge.svg)](https://github.com/c910335/crinder/actions/workflows/crystal.yml)
 [![GitHub releases](https://img.shields.io/github/release/c910335/crinder.svg)](https://github.com/c910335/crinder/releases)
 [![GitHub license](https://img.shields.io/github/license/c910335/crinder.svg)](https://github.com/c910335/crinder/blob/master/LICENSE)
 
