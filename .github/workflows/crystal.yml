@@ -26,5 +26,3 @@ jobs:
         run: crystal tool format --check
       - name: Lint
         run: bin/ameba
-      - name: Build doc
-        run: crystal docs
