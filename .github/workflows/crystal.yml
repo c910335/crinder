@@ -26,7 +26,14 @@ jobs:
         run: crystal tool format --check
       - name: Lint
         run: bin/ameba
-      - name: Deploy
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/maaster'
+
+    steps:
+      - name: Deploy document
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
