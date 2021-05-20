@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    - cron: "0 23 * * 6"
 
 jobs:
   build:
@@ -15,12 +17,17 @@ jobs:
       image: crystallang/crystal
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: shards install
-    - name: Run tests
-      run: crystal spec
-    - name: Check formatting
-      run: crystal tool format --check
-    - name: Lint
-      run: bin/ameba
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install
+      - name: Run tests
+        run: crystal spec
+      - name: Check formatting
+        run: crystal tool format --check
+      - name: Lint
+        run: bin/ameba
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
