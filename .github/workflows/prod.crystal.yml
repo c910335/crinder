@@ -1,0 +1,41 @@
+name: Crystal CI
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: "0 23 * * 6"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: crystallang/crystal
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install
+      - name: Run tests
+        run: crystal spec
+      - name: Check formatting
+        run: crystal tool format --check
+      - name: Lint
+        run: bin/ameba
+      - name: Build doc
+        run: crystal docs
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Deploy document
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

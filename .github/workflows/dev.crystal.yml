@@ -1,12 +1,8 @@
 name: Crystal CI
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
-  schedule:
-    - cron: "0 23 * * 6"
 
 jobs:
   build:
@@ -26,15 +22,3 @@ jobs:
         run: crystal tool format --check
       - name: Lint
         run: bin/ameba
-
-  deploy:
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/maaster'
-
-    steps:
-      - name: Deploy document
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
