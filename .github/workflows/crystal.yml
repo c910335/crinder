@@ -1,8 +1,12 @@
 name: Crystal CI
 
 on:
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    - cron: "0 23 * * 6"
 
 jobs:
   build:
@@ -22,3 +26,5 @@ jobs:
         run: crystal tool format --check
       - name: Lint
         run: bin/ameba
+      - name: Build doc
+        run: crystal docs
